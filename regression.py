@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 from matplotlib import style
 import numpy as np
-import datetime
 from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
@@ -23,6 +22,7 @@ df.fillna(value=-99999, inplace=True)
 
 # forecast range 1% of the total length of duration in data set.
 forecast_out = int(math.ceil(0.01 * len(df)))
+print("Prediction for number of days ahead = " + str(forecast_out))
 
 df['label'] = df[forecast_col].shift(-forecast_out)
 print(df.tail(n=50))
@@ -35,9 +35,11 @@ X = preprocessing.scale(X)
 X_lately = X[-forecast_out:]
 X = X[:-forecast_out]
 
-df.dropna(inplace=True)
+df_nas = df[df.isna().any(axis=1)]
+# df.dropna(inplace=True)
 
 y = np.array(df['label'])
+y = y[:-forecast_out]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
@@ -65,20 +67,16 @@ for k in ['linear', 'poly', 'rbf', 'sigmoid']:
 '''
 
 style.use('ggplot')
+
+# Label : X :: Forecast : X_lately
 df['Forecast'] = np.nan
 
-last_date = df.iloc[-1].name
-last_unix = last_date.timestamp()
-one_day = 86400
-next_unix = last_unix + one_day
+for i in range(len(forecast_set)):
+    df.at[df_nas.iloc[i].name, 'Forecast'] = forecast_set[i]
 
-for i in forecast_set:
-    next_date = datetime.datetime.fromtimestamp(next_unix)
-    next_unix += 86400
-    df.loc[next_date.strftime("%Y-%m-%d")] = [np.nan for _ in range(len(df.columns) - 1)] + [i]
-
-print(df.tail(n=50))
-df['Adj. Close'].plot()
+# Plot 'Adj. Close' values from X only
+df.iloc[:-forecast_out, df.columns.get_loc('Adj. Close')].plot()
+# Plot 'Forecast' values from X_lately only
 df['Forecast'].plot()
 
 plt.legend(loc=4)
