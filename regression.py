@@ -4,8 +4,9 @@ import numpy as np
 from sklearn import preprocessing, svm
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-import quandl, math
+import quandl, math, os, pickle
 
+linear_classifier_filename = 'linearregression.pickle'
 df = quandl.get("WIKI/GOOGL")
 # print(df.head())
 
@@ -44,17 +45,26 @@ y = y[:-forecast_out]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
 '''
-clf = svm.SVR()
+clf = svm.SVR(kernel='linear')
 clf.fit(X=X_train, y=y_train)
 confidence = clf.score(X=X_test, y=y_test)
 print(confidence)
 '''
 
-# n_jobs is the number of threads to work on for the classifier
-clf = LinearRegression(n_jobs=-1)
-clf.fit(X=X_train, y=y_train)
-confidence = clf.score(X=X_test, y=y_test)
-print(confidence)
+if os.path.exists(linear_classifier_filename):
+    # Load the already saved classifier from the file
+    pickle_in = open(linear_classifier_filename, 'rb')
+    clf = pickle.load(pickle_in)
+else:
+    # n_jobs is the number of threads to work on for the classifier
+    clf = LinearRegression(n_jobs=-1)
+    clf.fit(X=X_train, y=y_train)
+    confidence = clf.score(X=X_test, y=y_test)
+    print(confidence)
+
+    # Store classifier into a file for first time
+    with open(linear_classifier_filename, 'wb') as pickle_out:
+        pickle.dump(clf, pickle_out)
 
 forecast_set = clf.predict(X=X_lately)
 
