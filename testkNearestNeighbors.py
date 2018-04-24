@@ -33,10 +33,10 @@ test_size = 0.2
 train_data = full_data[:-int(test_size * len(full_data))]
 test_data = full_data[-int(test_size * len(full_data)):]
 
-print("train data")
-print(train_data)
-print("test data")
-print(test_data)
+#print("train data")
+#print(train_data)
+#print("test data")
+#print(test_data)
 
 for record in train_data:
     train_set[record[-1]].append(record[:-1])
@@ -54,4 +54,4 @@ for category in test_set:
 
         total = total + 1
 
-print("Accuracy = " + str(vote / total))
+print("Accuracy = " + str(correct / total))
