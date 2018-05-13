@@ -8,7 +8,9 @@ print(data.describe())
 columns = data.columns
 print(columns)
 
-interested_columns_labels = ['YearBuilt', '1stFlrSF']
-interested_columns_data = data[interested_columns_labels]
+features = ['LotArea', 'YearBuilt', '1stFlrSF', '2ndFlrSF', 'FullBath', 'BedroomAbvGr', 'TotRmsAbvGrd']
+X = data[features]
 
-print(interested_columns_data.describe())
+print(X.describe())
+
+y = data.SalePrice
