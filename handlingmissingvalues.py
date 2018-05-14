@@ -27,9 +27,27 @@ def impute_missing_data(X_train, X_test):
 
     imputer = Imputer()
     imputed_X_train = imputer.fit_transform(X_train)
-    imputed_X_test = imputer.fit_transform(X_test)
+    imputed_X_test = imputer.transform(X_test)
 
     return imputed_X_train, imputed_X_test
+
+
+def impute_missing_data_with_missing_columns(X_train, X_test):
+    from sklearn.preprocessing import Imputer
+
+    imputed_X_train_plus = X_train.copy()
+    imputed_X_test_plus = X_test.copy()
+
+    cols_with_missing_values = [col for col in X_train.columns if X_train[col].isnull().any()]
+    for col in cols_with_missing_values:
+        imputed_X_train_plus[col + '_was_missing'] = imputed_X_train_plus[col].isnull()
+        imputed_X_test_plus[col + '_was_missing'] = imputed_X_test_plus[col].isnull()
+
+    imputer = Imputer()
+    imputed_X_train_plus = imputer.fit_transform(imputed_X_train_plus)
+    imputed_X_test_plus = imputer.transform(imputed_X_test_plus)
+
+    return imputed_X_train_plus, imputed_X_test_plus
 
 
 melb_target = melb_data.Price
@@ -49,3 +67,8 @@ imputed_train_X, imputed_test_X = impute_missing_data(train_X, test_X)
 score_with_imputed_data = score_dataset(imputed_train_X, train_y, imputed_test_X, test_y)
 
 print(score_with_imputed_data)
+
+imputed_train_X_plus, imputed_test_X_plus = impute_missing_data(train_X, test_X)
+score_with_imputed_data_plus = score_dataset(imputed_train_X_plus, train_y, imputed_test_X_plus, test_y)
+
+print(score_with_imputed_data_plus)
