@@ -22,6 +22,16 @@ def drop_missing_columns(X_train, X_test):
     return reduced_X_train, reduced_X_test
 
 
+def impute_missing_data(X_train, X_test):
+    from sklearn.preprocessing import Imputer
+
+    imputer = Imputer()
+    imputed_X_train = imputer.fit_transform(X_train)
+    imputed_X_test = imputer.fit_transform(X_test)
+
+    return imputed_X_train, imputed_X_test
+
+
 melb_target = melb_data.Price
 melb_predictors = melb_data.drop(['Price'], axis=1)
 
@@ -34,3 +44,8 @@ reduced_train_X, reduced_test_X = drop_missing_columns(train_X, test_X)
 score_with_drop_columns = score_dataset(reduced_train_X, train_y, reduced_test_X, test_y)
 
 print(score_with_drop_columns)
+
+imputed_train_X, imputed_test_X = impute_missing_data(train_X, test_X)
+score_with_imputed_data = score_dataset(imputed_train_X, train_y, imputed_test_X, test_y)
+
+print(score_with_imputed_data)
