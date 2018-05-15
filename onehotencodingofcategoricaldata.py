@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import cross_val_score
 
 train_data = pd.read_csv('data/melbourne-house-prices-train-data.csv')
 test_data = pd.read_csv('data/melbourne-house-prices-test-data.csv')
@@ -23,3 +25,17 @@ features_from_train_data = candidate_train_data[features]
 features_from_test_data = candidate_test_data[features]
 
 print(features_from_train_data.dtypes.sample(10))
+
+
+def get_mae(X, y):
+    return -1 * cross_val_score(RandomForestRegressor(50), X, y, scoring='neg_mean_absolute_error').mean()
+
+
+one_hot_encoded_features_from_train_data = pd.get_dummies(features_from_train_data)
+features_without_categorical_values = features_from_train_data.select_dtypes(exclude=['object'])
+
+mae_without_encoding = get_mae(features_without_categorical_values, target)
+mae_with_encoding = get_mae(one_hot_encoded_features_from_train_data, target)
+
+print(mae_without_encoding)
+print(mae_with_encoding)
