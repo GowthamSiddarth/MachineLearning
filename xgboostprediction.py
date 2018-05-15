@@ -1,8 +1,10 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import Imputer
+from xgboost import XGBRegressor
+from sklearn.metrics import mean_absolute_error
 
-melb_data = pd.read_csv('data/melb_data.csv')
+melb_data = pd.read_csv('data/melbourne-house-prices-train-data.csv')
 melb_data.dropna(axis=0, subset=['SalePrice'], inplace=True)
 
 y = melb_data.SalePrice
@@ -12,4 +14,11 @@ train_X, test_X, train_y, test_y = train_test_split(X.as_matrix(), y.as_matrix()
 
 imputer = Imputer()
 train_X = imputer.fit_transform(train_X)
-train_y = imputer.transform(test_X)
+test_X = imputer.transform(test_X)
+
+model = XGBRegressor()
+model.fit(train_X, train_y)
+
+predictions = model.predict(test_X)
+mae = mean_absolute_error(test_y, predictions)
+print("MEAN ABSOLUTE ERROR: " + str(mae))
