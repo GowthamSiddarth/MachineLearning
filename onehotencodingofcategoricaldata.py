@@ -39,3 +39,7 @@ mae_with_encoding = get_mae(one_hot_encoded_features_from_train_data, target)
 
 print(mae_without_encoding)
 print(mae_with_encoding)
+
+one_hot_encoded_features_from_test_data = pd.get_dummies(features_from_test_data)
+final_train_features, final_test_features = one_hot_encoded_features_from_train_data.align(
+    one_hot_encoded_features_from_test_data, join='left', axis=1)
