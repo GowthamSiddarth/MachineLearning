@@ -16,7 +16,7 @@ imputer = Imputer()
 train_X = imputer.fit_transform(train_X)
 test_X = imputer.transform(test_X)
 
-model = XGBRegressor(n_estimators=1000)
+model = XGBRegressor(n_estimators=1000, learning_rate=0.05)
 model.fit(train_X, train_y, early_stopping_rounds=5, eval_set=[(test_X, test_y)], verbose=False)
 
 predictions = model.predict(test_X)
