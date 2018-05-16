@@ -88,3 +88,7 @@ plt.plot(epochs, val_acc_values, 'b+')
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 plt.show()
+
+predictions = model.predict_classes(X_test, verbose=0)
+submissions = pd.DataFrame({"ImageId": list(range(1, len(predictions) + 1)), "Label": predictions})
+submissions.to_csv('data/hand-written-digit-recognition-results-with-keras.csv', index=False, header=True)
