@@ -20,7 +20,7 @@ def view_image(img, label):
 train_data = pd.read_csv('data/hand-written-digit-recognition-train.csv')
 test_data = pd.read_csv('data/hand-writtern-digit-recognition-test.csv')
 
-X, y = train_data.iloc[:5000, 1:], train_data.iloc[:5000, :1]
+X, y = train_data.iloc[:9000, 1:], train_data.iloc[:9000, :1]
 train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.2, random_state=0)
 
 train_X[train_X > 0] = 1
@@ -35,7 +35,7 @@ score = clf.score(test_X, test_y)
 print(score)
 
 test_data[test_data > 0] = 1
-results = clf.predict(test_data[:5000])
+results = clf.predict(test_data[:28000])
 
 results_df = pd.DataFrame(results)
 results_df.index += 1
