@@ -104,4 +104,6 @@ ENV/
 .idea/
 
 # Data files
-data/
+data/hand-written-digit-recognition-results.csv
+data/hand-written-digit-recognition-train.csv
+data/hand-writtern-digit-recognition-test.csv
