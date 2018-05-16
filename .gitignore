@@ -102,3 +102,8 @@ ENV/
 
 # IDEA
 .idea/
+
+# Huge files
+data/hand-written-digit-recognition-results.csv
+data/hand-written-digit-recognition-train.csv
+data/hand-written-digit-recognition-test.csv
