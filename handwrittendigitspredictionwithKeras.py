@@ -67,3 +67,24 @@ val_batches = gen.flow(X_val, y_val, batch_size=64)
 
 history = model.fit_generator(train_batches, train_batches.n, nb_epoch=1, validation_data=val_batches,
                               nb_val_samples=val_batches.n)
+
+history_dict = history.history
+train_loss_values = history_dict['loss']
+val_loss_values = history_dict['val_loss']
+
+epochs = range(1, len(train_loss_values) + 1)
+
+plt.plot(epochs, train_loss_values, 'bo')
+plt.plot(epochs, val_loss_values, 'b+')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.show()
+
+train_acc_values = history_dict['acc']
+val_acc_values = history_dict['val_acc']
+
+plt.plot(epochs, train_acc_values, 'bo')
+plt.plot(epochs, val_acc_values, 'b+')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.show()
