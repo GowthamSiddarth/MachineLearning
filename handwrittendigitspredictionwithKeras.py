@@ -4,8 +4,9 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Lambda, Flatten
-from keras.optimizers import Adam, RMSprop
+from keras.layers.core import Dense, Dropout, Lambda, Flatten
+from keras.layers import BatchNormalization, Convolution2D, MaxPooling2D
+from keras.callbacks import EarlyStopping
 from keras.utils.np_utils import to_categorical
 
 from sklearn.model_selection import train_test_split
@@ -42,3 +43,16 @@ X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
 y_train = to_categorical(y_train)
 num_classes = y_train.shape[1]
 print(num_classes)
+
+plt.title(y_train[9])
+plt.plot(y_train[9])
+plt.xticks(range(10))
+plt.show()
+
+seed = 9
+np.random.seed(seed)
+
+model = Sequential()
+model.add(Lambda(standardize, input_shape=(28, 28, 1)))
+model.add(Flatten)
+model.add(Dense(10, activation='softmax'))
