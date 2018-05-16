@@ -7,17 +7,11 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Lambda, Flatten
 from keras.layers import BatchNormalization, Convolution2D, MaxPooling2D
 from keras.callbacks import EarlyStopping
+from keras.optimizers import RMSprop
+from keras.preprocessing import image
 from keras.utils.np_utils import to_categorical
 
 from sklearn.model_selection import train_test_split
-
-
-def standardize(x):
-    mean = x.mean().astype(np.float32)
-    std = x.std().astype(np.float32)
-
-    return (x - mean) / std
-
 
 train_data = pd.read_csv('data/hand-written-digit-recognition-train.csv')
 test_data = pd.read_csv('data/hand-writtern-digit-recognition-test.csv')
@@ -40,6 +34,13 @@ plt.show()
 X_train = X_train.reshape(X_train.shape[0], 28, 28, 1)
 X_test = X_test.reshape(X_test.shape[0], 28, 28, 1)
 
+mean_px = X_train.mean().astype(np.float32)
+std_px = X_train.std().astype(np.float32)
+
+
+def standardize(x): return (x - mean_px) / std_px
+
+
 y_train = to_categorical(y_train)
 num_classes = y_train.shape[1]
 print(num_classes)
@@ -54,5 +55,15 @@ np.random.seed(seed)
 
 model = Sequential()
 model.add(Lambda(standardize, input_shape=(28, 28, 1)))
-model.add(Flatten)
+model.add(Flatten())
 model.add(Dense(10, activation='softmax'))
+
+model.compile(optimizer=RMSprop(lr=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
+gen = image.ImageDataGenerator()
+
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, train_size=0.1, random_state=42)
+train_batches = gen.flow(X_train, y_train, batch_size=64)
+val_batches = gen.flow(X_val, y_val, batch_size=64)
+
+history = model.fit_generator(train_batches, train_batches.n, nb_epoch=1, validation_data=val_batches,
+                              nb_val_samples=val_batches.n)
