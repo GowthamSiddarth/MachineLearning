@@ -5,7 +5,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def cost_function(x, y, beta):
-    return np.dot((np.dot(x, beta) - y).T, np.dot(x, beta) - y) / y.shape[0]
+    return (np.dot((np.dot(x, beta) - y).T, np.dot(x, beta) - y) / y.shape[0]).ravel()
 
 
 data = pd.read_csv('../../data/student.csv')
@@ -24,3 +24,7 @@ plt.show()
 X = np.c_[np.ones(m), math, read]
 beta = np.random.rand(3, 1)
 Y = write
+
+alpha = 0.01
+initial_cost = cost_function(X, Y, beta)
+print("INITIAL COST = " + str(initial_cost))
