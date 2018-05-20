@@ -9,10 +9,10 @@ print(data.shape)
 print(data.head())
 
 X = data.ix[:, 2]
-y = data.ix[:, 3]
+Y = data.ix[:, 3]
 
 print(X.shape)
-print(y.shape)
+print(Y.shape)
 
 
 def covariance(x, y):
@@ -33,11 +33,21 @@ def variance(x):
     return (np.dot(x.T, x) - (np.sum(x) ** 2) / m).ravel()
 
 
-c, v = covariance(X, y), variance(X)
+c, v = covariance(X, Y), variance(X)
 print("covariance = " + str(c))
 print("variance = " + str(v))
 
 beta1 = c[0] / v[0]
-beta0 = np.mean(y) - beta1 * np.mean(X)
-
+beta0 = np.mean(Y) - beta1 * np.mean(X)
 print(beta0, beta1)
+
+max_x = np.max(X) + 100
+min_x = np.min(X) - 100
+
+x = np.linspace(min_x, max_x, 1000)
+y = beta0 + beta1 * x
+
+plt.plot(x, y, color='#58b970', label='Regression Line')
+plt.scatter(X, Y, c='#ef5423', label='Scatter Plot')
+plt.legend()
+plt.show()
