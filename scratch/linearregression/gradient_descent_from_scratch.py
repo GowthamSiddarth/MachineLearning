@@ -67,7 +67,6 @@ print("BETA at least cost = " + str(beta))
 plt.plot(np.linspace(1, iterations, num=4000), cost_history)
 plt.xlabel("Number of Iterations")
 plt.ylabel("Cost")
-plt.legend()
 plt.show()
 
 y_pred = np.dot(X, beta)
