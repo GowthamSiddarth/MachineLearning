@@ -9,6 +9,7 @@ def cost_function(x, y, beta):
 
 
 def gradient_descent(x, y, beta, alpha, iterations):
+    cost_history = [0] * iterations
     m = y.shape[0]
 
     for iteration in range(1, iterations + 1):
@@ -18,9 +19,10 @@ def gradient_descent(x, y, beta, alpha, iterations):
         beta = beta - alpha * gradient
 
         cost = cost_function(x, y, beta)
+        cost_history[iteration - 1] = cost
         print("Cost at iteration " + str(iteration) + " : " + str(cost))
 
-    return beta, cost
+    return beta, cost_history
 
 
 def root_mean_square_error(y_pred, y_orig):
@@ -58,9 +60,15 @@ alpha, iterations = 0.01, 4000
 initial_cost = cost_function(X, Y, beta)
 print("INITIAL COST = " + str(initial_cost))
 
-beta, cost = gradient_descent(X, Y, beta, alpha, iterations)
-print("LEAST COST = " + str(cost))
+beta, cost_history = gradient_descent(X, Y, beta, alpha, iterations)
+print("LEAST COST = " + str(cost_history[-1]))
 print("BETA at least cost = " + str(beta))
+
+plt.plot(np.linspace(1, iterations, num=4000), cost_history)
+plt.xlabel("Number of Iterations")
+plt.ylabel("Cost")
+plt.legend()
+plt.show()
 
 y_pred = np.dot(X, beta)
 
