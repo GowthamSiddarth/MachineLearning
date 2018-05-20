@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 
 data = pd.read_csv('../../data/student.csv')
 print(data.head())
@@ -21,4 +22,9 @@ model = LinearRegression()
 model.fit(X, Y)
 
 y_predict = model.predict(X)
-print(y_predict.shape)
+
+rmse = np.sqrt(mean_squared_error(Y, y_predict))
+print("ROOT MEAN SQUARE ERROR = " + str(rmse))
+
+rse = model.score(X, Y)
+print("R SQUARED ERROR = " + str(rse))
