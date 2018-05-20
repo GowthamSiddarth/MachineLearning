@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.linear_model import LinearRegression
 
 data = pd.read_csv('../../data/student.csv')
 print(data.head())
@@ -15,3 +16,9 @@ write = (write - np.mean(write)) / np.std(write)
 
 X = np.c_[math, read]
 Y = write
+
+model = LinearRegression()
+model.fit(X, Y)
+
+y_predict = model.predict(X)
+print(y_predict.shape)
