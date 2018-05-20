@@ -23,6 +23,15 @@ def gradient_descent(x, y, beta, alpha, iterations):
     return beta, cost
 
 
+def root_mean_square_error(y_pred, y_orig):
+    return np.sqrt(np.dot((y_pred - y_orig).T, y_pred - y_orig) / y_orig.shape[0]).ravel()
+
+
+def root_squared_error(y_pred, y_orig):
+    return 1 - np.dot((y_pred - y_orig).T, y_pred - y_orig) \
+               / np.dot((y_orig - np.mean(y_orig)).T, y_orig - np.mean(y_orig))
+
+
 data = pd.read_csv('../../data/student.csv')
 print(data.head())
 
@@ -52,3 +61,11 @@ print("INITIAL COST = " + str(initial_cost))
 beta, cost = gradient_descent(X, Y, beta, alpha, iterations)
 print("LEAST COST = " + str(cost))
 print("BETA at least cost = " + str(beta))
+
+y_pred = np.dot(X, beta)
+
+rmse = root_mean_square_error(y_pred, Y)
+print("ROOT MEAN SQUARE ERROR = " + str(rmse))
+
+rse = root_squared_error(y_pred, Y)
+print("ROOT_SQUARED_ERROR = " + str(rse))
