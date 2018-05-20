@@ -5,14 +5,10 @@ from matplotlib import pyplot as plt
 plt.rcParams['figure.figsize'] = (20.0, 10.0)
 
 data = pd.read_csv('../../data/headbrain.csv')
-print(data.shape)
 print(data.head())
 
 X = data.ix[:, 2]
 Y = data.ix[:, 3]
-
-print(X.shape)
-print(Y.shape)
 
 
 def covariance(x, y):
@@ -33,6 +29,16 @@ def variance(x):
     return (np.dot(x.T, x) - (np.sum(x) ** 2) / m).ravel()
 
 
+def r_squared_error(y_orig, y_pred):
+    return 1 - np.dot((y_orig - y_pred).T, y_orig - y_pred) \
+               / np.dot((y_orig - np.mean(y_orig)).T, y_orig - np.mean(y_orig))
+
+
+def root_mean_square_error(y_orig, y_pred):
+    return np.sqrt(np.dot(y_orig - y_pred, (y_orig - y_pred).T)
+                   / y_orig.shape[0])
+
+
 c, v = covariance(X, Y), variance(X)
 print("covariance = " + str(c))
 print("variance = " + str(v))
@@ -41,13 +47,21 @@ beta1 = c[0] / v[0]
 beta0 = np.mean(Y) - beta1 * np.mean(X)
 print(beta0, beta1)
 
+y_pred = beta0 + beta1 * X
+
+rmse = root_mean_square_error(Y, y_pred)
+print(rmse)
+
+rse = r_squared_error(Y, y_pred)
+print(rse)
+
 max_x = np.max(X) + 100
 min_x = np.min(X) - 100
 
-x = np.linspace(min_x, max_x, 1000)
-y = beta0 + beta1 * x
+x_plot = np.linspace(min_x, max_x, 1000)
+y_plot = beta0 + beta1 * x_plot
 
-plt.plot(x, y, color='#58b970', label='Regression Line')
+plt.plot(x_plot, y_plot, color='#58b970', label='Regression Line')
 plt.scatter(X, Y, c='#ef5423', label='Scatter Plot')
 plt.legend()
 plt.show()
