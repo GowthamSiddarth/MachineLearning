@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np
+from sklearn.linear_model import LinearRegression
 from matplotlib import pyplot as plt
 
 plt.rcParams['figure.figsize'] = (20.0, 10.0)
@@ -9,3 +9,9 @@ print(data.head())
 
 X = data.ix[:, 2]
 Y = data.ix[:, 3]
+
+model = LinearRegression()
+model.fit(X, Y)
+
+y = model.predict(X)
+print(y)
