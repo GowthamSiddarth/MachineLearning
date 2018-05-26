@@ -5,6 +5,27 @@ from sklearn.preprocessing import LabelEncoder
 from matplotlib import pyplot as plt
 
 
+def get_preprocessed_data(data_set_type):
+    if data_set_type == 'train':
+        data_set = pd.read_csv('../../data/titanic-train.csv')
+    elif data_set_type == 'test':
+        data_set = pd.read_csv('../../data/titanic-test.csv')
+    else:
+        raise Exception('Invalid Argument for data_set_type')
+
+    data_set['Cabin'] = data_set['Cabin'].fillna('C9')
+    data_set['Age'] = data_set['Age'].fillna(data_set['Age'].mean())
+    data_set['Embarked'] = data_set['Embarked'].fillna('Q')
+
+    data_set = encode_labels(data_set, ['Sex', 'Ticket', 'Cabin', 'Embarked'])
+    X_train = data_set[['PClass', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked']]
+    Y_train = data_set['Survived']
+
+    normalize_features(X_train)
+
+    return X_train.as_matrix(), Y_train.as_matrix()
+
+
 def encode_labels(data_frame, labels):
     label_encoder = LabelEncoder()
     for label in labels:
