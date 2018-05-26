@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
-import seaborn as sb
 from sklearn.preprocessing import LabelEncoder
-from matplotlib import pyplot as plt
 
 
 def get_preprocessed_data(data_set_type):
@@ -18,12 +16,18 @@ def get_preprocessed_data(data_set_type):
     data_set['Embarked'] = data_set['Embarked'].fillna('Q')
 
     data_set = encode_labels(data_set, ['Sex', 'Ticket', 'Cabin', 'Embarked'])
-    X_train = data_set[['PClass', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked']]
-    Y_train = data_set['Survived']
+    features = data_set[['Pclass', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked']]
+    normalize_features(features)
 
-    normalize_features(X_train)
+    if data_set_type == 'train':
+        y_train = data_set['Survived']
+        y_train = y_train.reshape(y_train.shape[0], 1)
+        return features.as_matrix(), y_train
+    else:
+        passenger_id = data_set['PassengerId']
+        return features.as_matrix(), passenger_id
 
-    return X_train.as_matrix(), Y_train.as_matrix()
+    return x
 
 
 def encode_labels(data_frame, labels):
@@ -42,18 +46,11 @@ def normalize_features(x_train):
     return x_train
 
 
-train_data = pd.read_csv('../../data/titanic-train.csv')
-test_data = pd.read_csv('../../data/titanic-test.csv')
+train_X, train_y = get_preprocessed_data('train')
+test_X, passenger_id = get_preprocessed_data('test')
 
-print(train_data.head())
-print(train_data.shape)
+alpha, weights, bias, m = 0.01, np.random.normal(0, 0.1, 9), np.random.normal(0, 0.1, 9), train_y.shape[0]
+print(train_X.shape)
+print(train_y.shape)
 
-plt.figure()
-plt.suptitle("Proportion of male & female who survived")
-sb.countplot(x="Sex", hue="Survived", data=train_data)
-plt.show()
 
-plt.figure()
-plt.suptitle("Proportion of economic categories who survived")
-sb.countplot(x="Pclass", hue="Survived", data=train_data)
-plt.show()
