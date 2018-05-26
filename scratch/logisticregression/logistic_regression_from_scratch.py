@@ -1,6 +1,17 @@
 import pandas as pd
 import seaborn as sb
+from sklearn.preprocessing import LabelEncoder
 from matplotlib import pyplot as plt
+
+
+def encode_labels(data_frame, labels):
+    label_encoder = LabelEncoder()
+    for label in labels:
+        label_encoder.fit(data_frame[label])
+        data_frame[label] = label_encoder.transform(data_frame[label])
+
+    return data_frame
+
 
 train_data = pd.read_csv('../../data/titanic-train.csv')
 test_data = pd.read_csv('../../data/titanic-test.csv')
