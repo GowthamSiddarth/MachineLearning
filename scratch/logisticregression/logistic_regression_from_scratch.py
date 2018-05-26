@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import random
 from sklearn.preprocessing import LabelEncoder
 
 
@@ -13,6 +14,7 @@ def get_preprocessed_data(data_set_type):
 
     data_set['Cabin'] = data_set['Cabin'].fillna('C9')
     data_set['Age'] = data_set['Age'].fillna(data_set['Age'].mean())
+    data_set['Fare'] = data_set['Fare'].fillna(data_set['Fare'].mean())
     data_set['Embarked'] = data_set['Embarked'].fillna('Q')
 
     data_set = encode_labels(data_set, ['Sex', 'Ticket', 'Cabin', 'Embarked'])
@@ -50,10 +52,11 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 
 
 train_X, train_y = get_preprocessed_data('train')
-test_X, passenger_id = get_preprocessed_data('test')
 
-m, epochs = train_y.shape[0], 10000
-alpha, weights, bias = 0.01, np.random.normal(0, 0.1, 9).reshape(9, 1), np.random.normal(0, 0.1, m).reshape(m, 1)
+m, epochs, num_of_features = train_y.shape[0], 10000, train_X.shape[1]
+alpha, weights, bias = 0.01, np.random.normal(0, 0.1, num_of_features).reshape(num_of_features, 1), \
+                       random.normalvariate(0, 0.1)
+
 print(train_X.shape)
 print(train_y.shape)
 
@@ -71,3 +74,13 @@ for epoch in range(1, epochs + 1):
 
     weights = weights - alpha * dw
     bias = bias - alpha * db
+
+test_X, passenger_ids = get_preprocessed_data('test')
+
+z = np.dot(test_X, weights) + bias
+a = sigmoid(z)
+
+print("=============== PREDICTIONS ==============")
+predictions = a > 0.5
+for i in range(len(passenger_ids)):
+    print("Passenger ID: %s Survived: %s" % (passenger_ids[i], predictions[i][0]))
