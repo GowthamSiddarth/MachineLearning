@@ -28,8 +28,14 @@ def forward_propogation(x, weights, bias):
     return activations
 
 
-def backward_propogation():
-    pass
+def backward_propogation(activations, y, weights):
+    output_layer_activations = activations[len(activations)]
+    deltas = {len(activations): output_layer_activations - y}
+    for layer in list(range(len(activations) - 1, 0, -1)):
+        deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
+                                    np.multiply(activations[layer], 1 - activations[layer]))
+
+
 
 
 def update_weights_and_bias():
@@ -74,7 +80,7 @@ def train_network(x, y, weights, bias, iterations):
         cost = cost_function(activations[len(activations)], y, weights)
         cost_history.append(cost)
 
-        deltas = backward_propogation()
+        deltas = backward_propogation(activations, y, weights)
         weights, bias = update_weights_and_bias(deltas)
 
     return weights, bias, cost_history
