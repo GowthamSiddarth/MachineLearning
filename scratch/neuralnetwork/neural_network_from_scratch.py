@@ -8,6 +8,15 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 
+def cost_function(y_pred, y_actual, weights, regularization_factor):
+    m, decay = y_pred.shape[0], 0
+    loss = -1 / m * np.dot(y_actual.T, y_pred) + np.dot(1 - y_actual.T, 1 - y_pred)
+    for weight_matrix in weights.values():
+        decay += np.sum(np.square(weight_matrix))
+    decay = regularization_factor / (2 * m) * decay
+    return loss + decay
+
+
 def forward_propogation(x, weights, bias):
     num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {}
     for current_layer in range(1, num_of_layers + 1):
