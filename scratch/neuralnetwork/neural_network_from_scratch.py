@@ -36,8 +36,8 @@ def update_weights_and_bias():
     pass
 
 
-def predict():
-    pass
+def get_probabilities(output_layer_activations):
+    return np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=1, keepdims=True)
 
 
 def get_data(path, instances, normalization=True):
@@ -70,8 +70,8 @@ def train_network(x, y, weights, bias, iterations):
     cost_history = []
     for iteration in range(iterations):
         activations = forward_propogation(x, weights, bias)
-        predictions = predict(activations)
-        cost = cost_function(predictions, y, weights)
+        probabilities = get_probabilities(activations[len(activations)])
+        cost = cost_function(probabilities, y, weights)
         cost_history.append(cost)
 
         deltas = backward_propogation()
