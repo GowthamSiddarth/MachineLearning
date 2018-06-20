@@ -30,17 +30,19 @@ def get_data(path, instances, normalization=True):
 
 
 def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
-    input_layer, output_layer = num_of_features, num_of_outputs
-    weights, prev_layer_nodes = {}, input_layer
+    input_layer = num_of_features
+    weights, bias, prev_layer_nodes = {}, {}, input_layer
     for index in range(len(hidden_layers_nodes)):
         current_layer_nodes = hidden_layers_nodes[index]
         current_layer_weights = np.random.rand(current_layer_nodes, prev_layer_nodes)
-        weights[index + 1] = current_layer_weights
+        current_layer_bias = np.random.rand(current_layer_nodes, 1)
+        weights[index + 1], bias[index + 1] = current_layer_weights, current_layer_bias
         prev_layer_nodes = current_layer_nodes
 
-    output_layer_weights = np.random.rand(output_layer, prev_layer_nodes)
-    weights[len(hidden_layers_nodes) + 1] = output_layer_weights
-    return weights
+    output_layer_weights = np.random.rand(num_of_outputs, prev_layer_nodes)
+    output_layer_bias = np.random.rand(num_of_outputs, 1)
+    weights[len(hidden_layers_nodes) + 1], bias[len(hidden_layers_nodes) + 1] = output_layer_weights, output_layer_bias
+    return weights, bias
 
 
 if __name__ == "__main__":
@@ -53,10 +55,14 @@ if __name__ == "__main__":
     print(train_Y.shape)
 
     m = train_X.shape[0]
-    weights = initialize_network(m, [5, 3], 10)
+    weights, bias = initialize_network(m, [5, 3], 10)
     print("WEIGHTS")
     for layer, weight_matrix in weights.items():
         print("Layer " + str(layer) + ": " + str(weight_matrix.shape))
+
+    print("BIAS")
+    for layer, bias_matrix in bias.items():
+        print("Layer " + str(layer) + ": " + str(bias_matrix.shape))
 
     activations = forward_propogation(train_X, weights)
     print("ACTIVATIONS")
