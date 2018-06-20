@@ -25,7 +25,7 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
         prev_layer_nodes = current_layer_nodes
 
     output_layer_weights = np.random.rand(output_layer, prev_layer_nodes)
-    weights[len(hidden_layers_nodes)] = output_layer_weights
+    weights[len(hidden_layers_nodes) + 1] = output_layer_weights
     return weights
 
 
