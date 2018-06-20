@@ -8,6 +8,17 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 
+def forward_propogation(x, weights):
+    num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {}
+    for current_layer in range(1, num_of_layers + 1):
+        current_layer_total = np.dot(weights[current_layer], prev_layer_activation)
+        current_layer_activation = sigmoid(current_layer_total)
+        activations[current_layer] = current_layer_activation
+        prev_layer_activation = current_layer_activation
+
+    return activations
+
+
 def get_data(path, instances, normalization=True):
     train_data = pd.read_csv(path)
     train_X, train_Y = train_data.iloc[:instances, 1:], train_data.iloc[:instances, :1]
@@ -15,7 +26,7 @@ def get_data(path, instances, normalization=True):
     if normalization:
         train_X = normalize(train_X)
 
-    return train_X, train_Y
+    return train_X.T, train_Y
 
 
 def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
@@ -41,6 +52,13 @@ if __name__ == "__main__":
     print(train_X.shape)
     print(train_Y.shape)
 
-    weights = initialize_network(train_X.shape[1], [5, 3], 10)
+    m = train_X.shape[0]
+    weights = initialize_network(m, [5, 3], 10)
+    print("WEIGHTS")
     for layer, weight_matrix in weights.items():
         print("Layer " + str(layer) + ": " + str(weight_matrix.shape))
+
+    activations = forward_propogation(train_X, weights)
+    print("ACTIVATIONS")
+    for layer, activation_matrix in activations.items():
+        print("Layer " + str(layer) + ": " + str(activation_matrix.shape))
