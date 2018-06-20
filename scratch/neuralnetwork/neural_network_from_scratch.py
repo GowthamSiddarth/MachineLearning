@@ -8,9 +8,9 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 
-def cost_function(y_pred, y_actual, weights, regularization_factor):
-    m, decay = y_pred.shape[0], 0
-    loss = -1 / m * np.dot(y_actual.T, y_pred) + np.dot(1 - y_actual.T, 1 - y_pred)
+def cost_function(y_predictions, y_actual, weights, regularization_factor):
+    m, decay = y_predictions.shape[0], 0
+    loss = -1 / m * np.dot(y_actual.T, y_predictions) + np.dot(1 - y_actual.T, 1 - y_predictions)
     for weight_matrix in weights.values():
         decay += np.sum(np.square(weight_matrix))
     decay = regularization_factor / (2 * m) * decay
@@ -26,6 +26,18 @@ def forward_propogation(x, weights, bias):
         prev_layer_activation = current_layer_activation
 
     return activations
+
+
+def backward_propogation():
+    pass
+
+
+def update_weights_and_bias():
+    pass
+
+
+def predict():
+    pass
 
 
 def get_data(path, instances, normalization=True):
@@ -52,6 +64,20 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
     output_layer_bias = np.random.rand(num_of_outputs, 1)
     weights[len(hidden_layers_nodes) + 1], bias[len(hidden_layers_nodes) + 1] = output_layer_weights, output_layer_bias
     return weights, bias
+
+
+def train_network(x, y, weights, bias, iterations):
+    cost_history = []
+    for iteration in range(iterations):
+        activations = forward_propogation(x, weights, bias)
+        predictions = predict(activations)
+        cost = cost_function(predictions, y, weights)
+        cost_history.append(cost)
+
+        deltas = backward_propogation()
+        weights, bias = update_weights_and_bias(deltas)
+
+    return weights, bias, cost_history
 
 
 if __name__ == "__main__":
