@@ -10,10 +10,10 @@ def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 def cost_function(y_predictions, y_actual, weights, regularization_factor):
     m, decay = y_predictions.shape[0], 0
-    loss = -1 / m * np.dot(y_actual.T, y_predictions) + np.dot(1 - y_actual.T, 1 - y_predictions)
+    loss = -1 / m * (np.dot(y_actual.T, y_predictions) + np.dot(1 - y_actual.T, 1 - y_predictions))
     for weight_matrix in weights.values():
         decay += np.sum(np.square(weight_matrix))
-    decay = regularization_factor / (2 * m) * decay
+    decay = (regularization_factor / (2 * m)) * decay
     return loss + decay
 
 
@@ -36,8 +36,9 @@ def update_weights_and_bias():
     pass
 
 
-def get_probabilities(output_layer_activations):
-    return np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=1, keepdims=True)
+def predict(output_layer_activations):
+    return np.argmax(np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations),
+                                                               axis=1, keepdims=True), axis=1)
 
 
 def get_data(path, instances, normalization=True):
@@ -70,8 +71,7 @@ def train_network(x, y, weights, bias, iterations):
     cost_history = []
     for iteration in range(iterations):
         activations = forward_propogation(x, weights, bias)
-        probabilities = get_probabilities(activations[len(activations)])
-        cost = cost_function(probabilities, y, weights)
+        cost = cost_function(activations[len(activations)], y, weights)
         cost_history.append(cost)
 
         deltas = backward_propogation()
