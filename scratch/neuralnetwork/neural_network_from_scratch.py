@@ -8,10 +8,10 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 
-def forward_propogation(x, weights):
+def forward_propogation(x, weights, bias):
     num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {}
     for current_layer in range(1, num_of_layers + 1):
-        current_layer_total = np.dot(weights[current_layer], prev_layer_activation)
+        current_layer_total = np.dot(weights[current_layer], prev_layer_activation) + bias[current_layer]
         current_layer_activation = sigmoid(current_layer_total)
         activations[current_layer] = current_layer_activation
         prev_layer_activation = current_layer_activation
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     for layer, bias_matrix in bias.items():
         print("Layer " + str(layer) + ": " + str(bias_matrix.shape))
 
-    activations = forward_propogation(train_X, weights)
+    activations = forward_propogation(train_X, weights, bias)
     print("ACTIVATIONS")
     for layer, activation_matrix in activations.items():
         print("Layer " + str(layer) + ": " + str(activation_matrix.shape))
