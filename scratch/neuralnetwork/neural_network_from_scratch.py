@@ -41,8 +41,8 @@ def backward_propagation(activations, y, weights, regularization_factor):
     deltas, weights_derivatives, bias_derivatives = {len(activations): output_layer_predictions - y}, {}, {}
     for layer in list(range(len(activations) - 1, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
-                                    np.multiply(activations[layer], 1 - activations[layer]))
-        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer]) + regularization_factor * weights[
+                                    np.multiply(activations[layer - 1], 1 - activations[layer - 1]))
+        weights_derivatives[layer] = np.dot(deltas[layer], activations[layer - 1].T) + regularization_factor * weights[
             layer]
         bias_derivatives[layer] = np.sum(deltas[layer], axis=0, keepdims=True)
 
@@ -56,8 +56,7 @@ def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives
 
 
 def predict(output_layer_activations):
-    return np.argmax(np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=0, keepdims=True),
-                     axis=0).reshape(output_layer_activations.shape[1], 1)
+    return np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=0, keepdims=True)
 
 
 def get_data(path, instances, normalization=True):
@@ -66,6 +65,7 @@ def get_data(path, instances, normalization=True):
 
     if normalization:
         train_X = normalize(train_X)
+    train_Y = encode_labels(train_Y)
 
     return train_X.T, train_Y
 
