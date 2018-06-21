@@ -17,7 +17,7 @@ def cost_function(y_predictions, y_actual, weights, regularization_factor):
     return loss + decay
 
 
-def forward_propogation(x, weights, bias):
+def forward_propagation(x, weights, bias):
     num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {0: x}
     for current_layer in range(1, num_of_layers + 1):
         current_layer_total = np.dot(weights[current_layer], prev_layer_activation) + bias[current_layer]
@@ -28,12 +28,12 @@ def forward_propogation(x, weights, bias):
     return activations
 
 
-def backward_propogation(activations, y, weights, regularization_factor):
+def backward_propagation(activations, y, weights, regularization_factor):
     output_layer_predictions = predict(activations[len(activations) - 1])
     print("output_layer_predictions.shape " + str(output_layer_predictions.shape))
     print("y.shape " + str(y.shape))
-    deltas, weights_derivatives, bias_derivatives = {len(activations) - 1: output_layer_predictions - y}, {}, {}
-    for layer in list(range(len(activations) - 2, 0, -1)):
+    deltas, weights_derivatives, bias_derivatives = {len(activations): output_layer_predictions - y}, {}, {}
+    for layer in list(range(len(activations) - 1, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer], 1 - activations[layer]))
         weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer]) + regularization_factor * weights[
@@ -83,8 +83,8 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
 def train_network(x, y, weights, bias, learning_rate, regularization_factor, iterations):
     cost_history = []
     for iteration in range(iterations):
-        activations = forward_propogation(x, weights, bias)
-        weights_derivatives, bias_derivatives = backward_propogation(activations, y, weights, regularization_factor)
+        activations = forward_propagation(x, weights, bias)
+        weights_derivatives, bias_derivatives = backward_propagation(activations, y, weights, regularization_factor)
         weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
 
         cost = cost_function(activations[len(activations) - 1], y, weights)
