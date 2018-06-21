@@ -8,6 +8,12 @@ def sigmoid(x): return 1 / (1 + np.exp(-x))
 def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 
+def encode_labels(y):
+    z = np.zeros((10, y.shape[0]))
+    z[y, range(y.shape[0])] = 1
+    return z
+
+
 def cost_function(y_predictions, y_actual, weights, regularization_factor):
     m, decay = y_predictions.shape[0], 0
     loss = -1 / m * (np.dot(y_actual.T, y_predictions) + np.dot(1 - y_actual.T, 1 - y_predictions))
