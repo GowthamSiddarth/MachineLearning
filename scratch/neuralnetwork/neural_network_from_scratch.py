@@ -28,13 +28,13 @@ def forward_propogation(x, weights, bias):
     return activations
 
 
-def backward_propogation(activations, y, weights):
+def backward_propogation(activations, y, weights, regularization_factor):
     output_layer_activations = activations[len(activations) - 1]
     deltas, weights_derivatives, bias_derivatives = {len(activations) - 1: output_layer_activations - y}, {}, {}
     for layer in list(range(len(activations) - 2, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer], 1 - activations[layer]))
-        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer])
+        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer]) + regularization_factor * weights[layer]
         bias_derivatives[layer] = np.sum(deltas[layer], axis=0, keepdims=True)
 
     return weights_derivatives, bias_derivatives
@@ -42,8 +42,10 @@ def backward_propogation(activations, y, weights):
 
 
 
-def update_weights_and_bias():
-    pass
+def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate):
+    weights = weights - learning_rate * weights_derivatives
+    bias = bias - learning_rate * bias_derivatives
+    return weights, bias
 
 
 def predict(output_layer_activations):
@@ -77,16 +79,15 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
     return weights, bias
 
 
-def train_network(x, y, weights, bias, iterations):
+def train_network(x, y, weights, bias, learning_rate, iterations):
     cost_history = []
     for iteration in range(iterations):
         activations = forward_propogation(x, weights, bias)
+        weights_derivatives, bias_derivatives = backward_propogation(activations, y, weights)
+        weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
+
         cost = cost_function(activations[len(activations) - 1], y, weights)
         cost_history.append(cost)
-
-        deltas = backward_propogation(activations, y, weights)
-        weights, bias = update_weights_and_bias(deltas)
-
     return weights, bias, cost_history
 
 
