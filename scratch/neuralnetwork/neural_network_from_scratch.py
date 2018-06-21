@@ -34,12 +34,11 @@ def backward_propogation(activations, y, weights, regularization_factor):
     for layer in list(range(len(activations) - 2, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer], 1 - activations[layer]))
-        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer]) + regularization_factor * weights[layer]
+        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer]) + regularization_factor * weights[
+            layer]
         bias_derivatives[layer] = np.sum(deltas[layer], axis=0, keepdims=True)
 
     return weights_derivatives, bias_derivatives
-
-
 
 
 def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate):
@@ -79,15 +78,18 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
     return weights, bias
 
 
-def train_network(x, y, weights, bias, learning_rate, iterations):
+def train_network(x, y, weights, bias, learning_rate, regularization_factor, iterations):
     cost_history = []
     for iteration in range(iterations):
         activations = forward_propogation(x, weights, bias)
-        weights_derivatives, bias_derivatives = backward_propogation(activations, y, weights)
+        weights_derivatives, bias_derivatives = backward_propogation(activations, y, weights, regularization_factor)
         weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
 
         cost = cost_function(activations[len(activations) - 1], y, weights)
         cost_history.append(cost)
+
+        if 0 == iteration % 100:
+            print("Cost at iteration " + str(iteration) + ": " + str(cost))
     return weights, bias, cost_history
 
 
@@ -110,7 +112,6 @@ if __name__ == "__main__":
     for layer, bias_matrix in bias.items():
         print("Layer " + str(layer) + ": " + str(bias_matrix.shape))
 
-    activations = forward_propogation(train_X, weights, bias)
-    print("ACTIVATIONS")
-    for layer, activation_matrix in activations.items():
-        print("Layer " + str(layer) + ": " + str(activation_matrix.shape))
+    learning_rate, regularization_factor, iterations = 0.1, 0.01, 2000
+    weights, bias, cost_history = train_network(train_X, train_Y, weights, bias, learning_rate,
+                                                regularization_factor, iterations)
