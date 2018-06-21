@@ -18,7 +18,7 @@ def cost_function(y_predictions, y_actual, weights, regularization_factor):
 
 
 def forward_propogation(x, weights, bias):
-    num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {}
+    num_of_layers, prev_layer_activation, activations = len(weights.keys()), x, {0: x}
     for current_layer in range(1, num_of_layers + 1):
         current_layer_total = np.dot(weights[current_layer], prev_layer_activation) + bias[current_layer]
         current_layer_activation = sigmoid(current_layer_total)
@@ -29,11 +29,15 @@ def forward_propogation(x, weights, bias):
 
 
 def backward_propogation(activations, y, weights):
-    output_layer_activations = activations[len(activations)]
-    deltas = {len(activations): output_layer_activations - y}
-    for layer in list(range(len(activations) - 1, 0, -1)):
+    output_layer_activations = activations[len(activations) - 1]
+    deltas, weights_derivatives, bias_derivatives = {len(activations) - 1: output_layer_activations - y}, {}, {}
+    for layer in list(range(len(activations) - 2, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer], 1 - activations[layer]))
+        weights_derivatives[layer] = np.dot(activations[layer - 1].T, deltas[layer])
+        bias_derivatives[layer] = np.sum(deltas[layer], axis=0, keepdims=True)
+
+    return weights_derivatives, bias_derivatives
 
 
 
@@ -77,7 +81,7 @@ def train_network(x, y, weights, bias, iterations):
     cost_history = []
     for iteration in range(iterations):
         activations = forward_propogation(x, weights, bias)
-        cost = cost_function(activations[len(activations)], y, weights)
+        cost = cost_function(activations[len(activations) - 1], y, weights)
         cost_history.append(cost)
 
         deltas = backward_propogation(activations, y, weights)
