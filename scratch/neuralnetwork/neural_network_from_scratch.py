@@ -29,8 +29,10 @@ def forward_propogation(x, weights, bias):
 
 
 def backward_propogation(activations, y, weights, regularization_factor):
-    output_layer_activations = activations[len(activations) - 1]
-    deltas, weights_derivatives, bias_derivatives = {len(activations) - 1: output_layer_activations - y}, {}, {}
+    output_layer_predictions = predict(activations[len(activations) - 1])
+    print("output_layer_predictions.shape " + str(output_layer_predictions.shape))
+    print("y.shape " + str(y.shape))
+    deltas, weights_derivatives, bias_derivatives = {len(activations) - 1: output_layer_predictions - y}, {}, {}
     for layer in list(range(len(activations) - 2, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer], 1 - activations[layer]))
@@ -48,8 +50,8 @@ def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives
 
 
 def predict(output_layer_activations):
-    return np.argmax(np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations),
-                                                               axis=1, keepdims=True), axis=1)
+    return np.argmax(np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=0, keepdims=True),
+                     axis=0).reshape(output_layer_activations.shape[1], 1)
 
 
 def get_data(path, instances, normalization=True):
