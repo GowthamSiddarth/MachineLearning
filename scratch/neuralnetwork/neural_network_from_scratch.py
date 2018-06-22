@@ -36,22 +36,22 @@ def forward_propagation(x, weights, bias):
 
 def backward_propagation(activations, y, weights, regularization_factor):
     output_layer_predictions = predict(activations[len(activations) - 1])
-    print("output_layer_predictions.shape " + str(output_layer_predictions.shape))
-    print("y.shape " + str(y.shape))
     deltas, weights_derivatives, bias_derivatives = {len(activations): output_layer_predictions - y}, {}, {}
     for layer in list(range(len(activations) - 1, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer - 1], 1 - activations[layer - 1]))
         weights_derivatives[layer] = np.dot(deltas[layer + 1], activations[layer - 1].T) + regularization_factor * weights[
             layer]
-        bias_derivatives[layer] = np.sum(deltas[layer], axis=0)
+        bias_derivatives[layer] = np.sum(deltas[layer + 1], axis=1).reshape((deltas[layer + 1].shape[0], 1))
 
     return weights_derivatives, bias_derivatives
 
 
 def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate):
-    weights = weights - learning_rate * weights_derivatives
-    bias = bias - learning_rate * bias_derivatives
+    for layer in weights.keys():
+        weights[layer] = weights[layer] - learning_rate * weights_derivatives[layer]
+        bias[layer] = bias[layer] - learning_rate * bias_derivatives[layer]
+
     return weights, bias
 
 
@@ -93,7 +93,7 @@ def train_network(x, y, weights, bias, learning_rate, regularization_factor, ite
         weights_derivatives, bias_derivatives = backward_propagation(activations, y, weights, regularization_factor)
         weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
 
-        cost = cost_function(activations[len(activations) - 1], y, weights)
+        cost = cost_function(activations[len(activations) - 1], y, weights, regularization_factor)
         cost_history.append(cost)
 
         if 0 == iteration % 100:
