@@ -42,9 +42,9 @@ def backward_propagation(activations, y, weights, regularization_factor):
     for layer in list(range(len(activations) - 1, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer - 1], 1 - activations[layer - 1]))
-        weights_derivatives[layer] = np.dot(deltas[layer], activations[layer - 1].T) + regularization_factor * weights[
+        weights_derivatives[layer] = np.dot(deltas[layer + 1], activations[layer - 1].T) + regularization_factor * weights[
             layer]
-        bias_derivatives[layer] = np.sum(deltas[layer], axis=0, keepdims=True)
+        bias_derivatives[layer] = np.sum(deltas[layer], axis=0)
 
     return weights_derivatives, bias_derivatives
 
