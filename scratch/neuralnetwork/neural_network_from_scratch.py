@@ -10,13 +10,29 @@ def normalize(x): return (x - np.mean(x)) / np.std(x)
 
 def encode_labels(y):
     z = np.zeros((10, y.shape[0]))
-    z[y, range(y.shape[0])] = 1
+    z[y.values.reshape(y.shape[0]), range(y.shape[0])] = 1
     return z
+
+
+def predict(output_layer_activations):
+    return np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=0, keepdims=True)
+
+
+def get_data(path, instances, normalization=True):
+    train_data = pd.read_csv(path, skiprows=1)
+    train_X, train_Y = train_data.iloc[:instances, 1:], train_data.iloc[:instances, :1]
+
+    if normalization:
+        train_X = normalize(train_X)
+    train_Y = encode_labels(train_Y)
+
+    return train_X.T, train_Y
 
 
 def cost_function(y_predictions, y_actual, weights, regularization_factor):
     m, decay = y_predictions.shape[1], 0
-    loss = -1 / m * np.sum(np.dot(np.log(y_predictions), y_actual.T) + np.dot(np.log(1 - y_predictions), 1 - y_actual.T))
+    loss = -1 / m * np.sum(
+        np.dot(np.log(y_predictions), y_actual.T) + np.dot(np.log(1 - y_predictions), 1 - y_actual.T))
     print("loss = " + str(loss))
     for weight_matrix in weights.values():
         decay += np.sum(np.square(weight_matrix))
@@ -42,8 +58,9 @@ def backward_propagation(activations, y, weights, regularization_factor):
     for layer in list(range(len(activations) - 1, 0, -1)):
         deltas[layer] = np.multiply(np.dot(weights[layer].T, deltas[layer + 1]),
                                     np.multiply(activations[layer - 1], 1 - activations[layer - 1]))
-        weights_derivatives[layer] = np.dot(deltas[layer + 1], activations[layer - 1].T) + regularization_factor * weights[
-            layer]
+        weights_derivatives[layer] = np.dot(deltas[layer + 1], activations[layer - 1].T) + regularization_factor * \
+                                                                                           weights[
+                                                                                               layer]
         bias_derivatives[layer] = np.sum(deltas[layer + 1], axis=1).reshape((deltas[layer + 1].shape[0], 1))
 
     return weights_derivatives, bias_derivatives
@@ -57,19 +74,23 @@ def update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives
     return weights, bias
 
 
-def predict(output_layer_activations):
-    return np.exp(output_layer_activations) / np.sum(np.exp(output_layer_activations), axis=0, keepdims=True)
+def train_network(x, y, weights, bias, learning_rate, regularization_factor, iterations):
+    cost_history = []
+    for iteration in range(1, iterations + 1):
+        print("Iteration: " + str(iteration))
+        activations = forward_propagation(x, weights, bias)
+        for layer in activations.keys():
+            print("Activations " + str(layer))
+            print(activations[layer])
+        weights_derivatives, bias_derivatives = backward_propagation(activations, y, weights, regularization_factor)
+        weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
 
+        cost = cost_function(activations[len(activations) - 1], y, weights, regularization_factor)
+        cost_history.append(cost)
 
-def get_data(path, instances, normalization=True):
-    train_data = pd.read_csv(path)
-    train_X, train_Y = train_data.iloc[:instances, 1:], train_data.iloc[:instances, :1]
-
-    if normalization:
-        train_X = normalize(train_X)
-    train_Y = encode_labels(train_Y)
-
-    return train_X.T, train_Y
+        if 0 == iteration % 100:
+            print("Cost at iteration " + str(iteration) + ": " + str(cost))
+    return weights, bias, cost_history
 
 
 def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
@@ -88,22 +109,6 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
     return weights, bias
 
 
-def train_network(x, y, weights, bias, learning_rate, regularization_factor, iterations):
-    cost_history = []
-    for iteration in range(1, iterations + 1):
-        print("Iteration: " + str(iteration))
-        activations = forward_propagation(x, weights, bias)
-        weights_derivatives, bias_derivatives = backward_propagation(activations, y, weights, regularization_factor)
-        weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
-
-        cost = cost_function(activations[len(activations) - 1], y, weights, regularization_factor)
-        cost_history.append(cost)
-
-        if 0 == iteration % 100:
-            print("Cost at iteration " + str(iteration) + ": " + str(cost))
-    return weights, bias, cost_history
-
-
 if __name__ == "__main__":
     print("Starting...")
     train_data_path = "../../data/hand-written-digit-recognition-train.csv"
@@ -112,7 +117,7 @@ if __name__ == "__main__":
     train_X, train_Y = get_data(train_data_path, instances)
     print(train_X.shape)
     print(train_Y.shape)
-    print(train_Y)
+    print(np.sum(train_Y))
 
     m = train_X.shape[0]
     weights, bias = initialize_network(m, [5, 3], 10)
