@@ -15,11 +15,13 @@ def encode_labels(y):
 
 
 def cost_function(y_predictions, y_actual, weights, regularization_factor):
-    m, decay = y_predictions.shape[0], 0
-    loss = -1 / m * (np.dot(y_actual.T, y_predictions) + np.dot(1 - y_actual.T, 1 - y_predictions))
+    m, decay = y_predictions.shape[1], 0
+    loss = -1 / m * np.sum(np.dot(np.log(y_predictions), y_actual.T) + np.dot(np.log(1 - y_predictions), 1 - y_actual.T))
+    print("loss = " + str(loss))
     for weight_matrix in weights.values():
         decay += np.sum(np.square(weight_matrix))
     decay = (regularization_factor / (2 * m)) * decay
+    print("decay = " + str(decay))
     return loss + decay
 
 
@@ -88,7 +90,8 @@ def initialize_network(num_of_features, hidden_layers_nodes, num_of_outputs):
 
 def train_network(x, y, weights, bias, learning_rate, regularization_factor, iterations):
     cost_history = []
-    for iteration in range(iterations):
+    for iteration in range(1, iterations + 1):
+        print("Iteration: " + str(iteration))
         activations = forward_propagation(x, weights, bias)
         weights_derivatives, bias_derivatives = backward_propagation(activations, y, weights, regularization_factor)
         weights, bias = update_weights_and_bias(weights, weights_derivatives, bias, bias_derivatives, learning_rate)
@@ -109,6 +112,7 @@ if __name__ == "__main__":
     train_X, train_Y = get_data(train_data_path, instances)
     print(train_X.shape)
     print(train_Y.shape)
+    print(train_Y)
 
     m = train_X.shape[0]
     weights, bias = initialize_network(m, [5, 3], 10)
